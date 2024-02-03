@@ -11,6 +11,7 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'uweitstestemail@gmail.com'
 app.config['MAIL_PASSWORD'] = os.environ.get('its_password')
+#os.environ.get('its_password')
 mail = Mail(app)
 
 @app.route('/home', methods=['GET', 'POST'])
@@ -27,19 +28,21 @@ def process_data():
     user_issue = request.form['issue']
     user_info = request.form['furtherinfo']
 
-    result = send_email(user_email)
+    result = send_email(user_email, user_firstname, user_lastname)
 
-    return result
-
-app.route('/send_email', methods=['POST'])
-def send_email(user_email):
     if 'live.uwe.ac.uk' in user_email:
-        msg = Message("UWE ITS Help Service", sender = 'uweitstestemail@gmail.com', recipients = [user_email])
-        msg.body = "Hi, This is a test email as we are currently prototyping. Thank you for your support."
-        mail.send(msg)
-        return "Email sent."
+        result = send_email(user_email, user_firstname, user_lastname)
+        return result
     else:
         return "This email isn't a UWE Email, Goodbye."
+
+app.route('/send_email', methods=['POST'])
+def send_email(user_email, user_firstname, user_lastname):
+    msg = Message("UWE ITS Help Service", sender = 'uweitstestemail@gmail.com', recipients = [user_email])
+    msg.body = "Hi " + user_firstname + " " + user_lastname + ", This is a test email as we are currently prototyping. Thank you for your support."
+    mail.send(msg)
+    return "The email has been sent. Please check your junk if it has not appeared in your inbox."
+
 
 
 if __name__ == '__main__':
