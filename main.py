@@ -28,8 +28,6 @@ def process_data():
     user_issue = request.form['issue']
     user_info = request.form['furtherinfo']
 
-    result = send_email(user_email, user_firstname, user_lastname)
-
     if 'live.uwe.ac.uk' in user_email:
         result = send_email(user_email, user_firstname, user_lastname)
         return result
