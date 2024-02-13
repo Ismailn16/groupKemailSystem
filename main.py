@@ -1,18 +1,9 @@
 from flask import Flask, render_template, request
-from flask_mail import Mail, Message
-import os
+import sendgrid
+from sendgrid.helpers.mail import *
 
 app = Flask(__name__)
-mail = Mail(app)
-
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'uweitstestemail@gmail.com'
-app.config['MAIL_PASSWORD'] = os.environ.get('its_password')
-#os.environ.get('its_password')
-mail = Mail(app)
+sg = sendgrid.SendGridAPIClient('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')
 
 @app.route('/home', methods=['GET', 'POST'])
 @app.route('/')
@@ -36,9 +27,12 @@ def process_data():
 
 app.route('/send_email', methods=['POST'])
 def send_email(user_email, user_firstname, user_lastname):
-    msg = Message("UWE ITS Help Service", sender = 'uweitstestemail@gmail.com', recipients = [user_email])
-    msg.body = "Hi " + user_firstname + " " + user_lastname + ", This is a test email as we are currently prototyping. Thank you for your support."
-    mail.send(msg)
+    from_email = 'uweitstestemail@gmail.com'
+    to_email = To(user_email)
+    subject = "UWE ITS Test Email"
+    content = Content("text/plain", "Hi " + user_firstname + " " + user_lastname + ", This is a test email as we are currently prototyping this system. Thank you for your support!")
+    mail = Mail(from_email, to_email, subject, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
     return "The email has been sent. Please check your junk if it has not appeared in your inbox."
 
 
