@@ -24,15 +24,27 @@
         <div>
             <label for="issue">Issue:</label>
             <select name="issue" id-="issue">
-                <option value="issue1">Issue 1</option>
-                <option value="issue2">Issue 2</option>
-                <option value="issue...">Issue...</option>
+                <option value="Reset Password">Reset Password</option>
+                <option value="MFA not working">MFA not working</option>
+                <option value="How to access marks">How to access my marks</option>
+                <option value="How to connect to UWEs WiFi">How to connect to UWE'S WiFi</option>
+                <option value="Not Specified">Not Specified</option>
             </select>
         </div>
         <div>
-            <label for="furtherinfo">Please explain your issue in detail:</label>
-            <input type="text" id="furtherinfo" placeholder="Please explain your issue in detail" name="furtherinfo"
-                maxlength="1000" required>
+            <label for="specissue">If you selected 'Not Specified' in the box above, please select the topic that your
+                issue is most related to:</label>
+            <select name="specissue" id-="specissue">
+                <option value="Passwords">Password Related</option>
+                <option value="Blackboard">Blackboard</option>
+                <option value="Finance">Issues relating to Finance</option>
+                <option value="Timetable">Timetable Related</option>
+                <option value="Personal Information">Personal Information</option>
+                <option value="WiFi">WiFi</option>
+                <option value="Attendance">Issues relating to Attendance</option>
+                <option value="UWE Software">Issues relating to UWE Software</option>
+            </select>
+
         </div>
         <button>Submit</button>
     </form>
