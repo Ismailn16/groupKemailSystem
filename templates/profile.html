@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='output.css')}}">
+</head>
+
+<header>
+    <div class="bg-gray-500 py-5">
+        <div class="container mx-auto">
+            <a href="/home">
+                <h1 class="text-2xl font-bold mb-4 flex justify-center" href="/home">UWE ITS Help Services</h1>
+            </a>
+            <nav class="flex justify-center">
+                <a class="hover:text-red-700 px-4" href="/issue_form">Issue Form</a>
+                <a class="hover:text-red-700 px-4" href="/dashboard">Dashboard</a>
+                <a class="hover:text-red-700 px-4" href="/profile">Profile</a>
+                <a class="hover:text-red-700 px-4" href="/logout">Log Out</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<body>
+    <div>
+        <h2 class="flex justify-center">Your Information</h2>
+        <div>
+            <h3 class="flex justify-center">Personal Information:</h3>
+        </div>
+        <div class="flex justify-center">
+            <div>
+                <div>
+                    <label for="first_name">First Name:</label>
+                    <input type="text" id="first_name" name="first_name" value="{{ fName }}" readonly>
+                    <a href="/change_first">Edit First Name</a>
+                </div>
+                <div>
+                    <label for="last_name">Last Name:</label>
+                    <input type="text" id="last_name" name="last_name" value="{{ lName }}" readonly>
+                    <a href="/change_last">Edit Last Name</a>
+                </div>
+                <div>
+                    <label for="user_name">Username:</label>
+                    <input type="text" id="user_name" name="username_name" value="{{ username }}" readonly>
+                    <a href="/change_username">Edit Username</a>
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" value="{{ password }}" readonly>
+                    <button onclick="togglePasswordVisibility()">Show Password</button>
+
+                    <script>
+                        function togglePasswordVisibility() {
+                            var passwordInput = document.getElementById("password");
+                            if (passwordInput.type === "password") {
+                                passwordInput.type = "text"; // Change input type to text to reveal password
+                            } else {
+                                passwordInput.type = "password"; // Change input type back to password
+                            }
+                        }
+                    </script>
+                    <a class="flex items-end" href="/change_password">Edit Password</a>
+                    <!-- Link to change password page -->
+                </div>
+                <label for="uwe_email">UWE Email:</label>
+                <input type="text" id="uwe_email" name="uwe_email" value="{{ UWEemail }}" readonly>
+                <a href="/change_uwe">Edit UWE Email</a>
+            </div>
+        </div>
+    </div>
+    <div>
+        <h3 class="flex justify-center items-center">{{ msg }}</h3>
+    </div>
+</body>

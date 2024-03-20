@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='output.css')}}">
+</head>
+
+<header>
+    <div class="bg-gray-500 py-5">
+        <div class="container mx-auto">
+            <a href="/home">
+                <h1 class="text-2xl font-bold mb-4 flex justify-center" href="/home">UWE ITS Help Services</h1>
+            </a>
+            <nav class="flex justify-center">
+                <a class="hover:text-red-700 px-4" href="/issue_form">Issue Form</a>
+                <a class="hover:text-red-700 px-4" href="/dashboard">Dashboard</a>
+                <a class="hover:text-red-700 px-4" href="/profile">Profile</a>
+                <a class="hover:text-red-700 px-4" href="/logout">Log Out</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+
+<body>
+    <h1 class="flex justify-center items-center underline">Welcome {{ username }}</h1>
+
+    <body>
+        <div class="flex justify-center items-center underline">
+            <h2 class="flex justify-center items-center">{{ msg }}</h2>
+            <table class="table-auto border-collapse">
+                <tr>
+                    <th class="px-4 py-2 bg-gray-200">{{ erd }}</th>
+                    <th class="px-4 py-2 bg-gray-200">{{ erdt }}</th>
+                    <th class="px-4 py-2 bg-gray-200">{{ ers }}</th>
+                </tr>
+                {% for item in emailArray %}
+                <tr>
+                    <td class="border px-4 py-2">{{ item.emailRequestDescription }}</td>
+                    <td class="border px-4 py-2">{{ item.emailRequestDT }}</td>
+                    <td class="border px-4 py-2">{{ item.emailRequestStatus }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+
+    </body>
+
+</html>

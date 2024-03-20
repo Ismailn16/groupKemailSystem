@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='output.css')}}">
+</head>
+
+<header>
+    <div class="bg-gray-500 py-5">
+        <div class="container mx-auto">
+            <a href="/home">
+                <h1 class="text-2xl font-bold mb-4 flex justify-center" href="/home">UWE ITS Help Services</h1>
+            </a>
+            <nav class="flex justify-center">
+                <a class="hover:text-red-700 px-4" href="/issue_form">Issue Form</a>
+                <a class="hover:text-red-700 px-4" href="{{ firstTagRoute }}">{{ firstTag }}</a>
+                <a class="hover:text-red-700 px-4" href='{{ secondTagRoute }}'>{{ secondTag }}</a>
+                <a class="hover:text-red-700 px-4" href='{{ thirdTagRoute }}'>{{ thirdTag }}</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<body class="bg-gray-100">
+    <div>
+        <div class="flex items-center justify-center py-2">
+            <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8" action="/process_form">
+                <div>
+                    <label class="flex items-center" for="firstname">First Name:</label>
+                </div>
+                <div>
+                    <input type="text" id="firstname" placeholder="Please enter your first name" name="firstname"
+                        required>
+                </div>
+                <div>
+                    <label for="lastname">Last Name:</label>
+
+                </div>
+                <div>
+                    <input type="text" id="lastname" placeholder="Please enter your last name" name="lastname" required>
+                </div>
+                <div>
+                    <label for="username">If you have registered, please enter your username:</label>
+                </div>
+                <div>
+                    <input type="text" id="username" placeholder="Please enter your username" name="username"
+                        value="{{ username }}">
+                </div>
+                <div>
+                    <label for="UWEemail">UWE Email:</label>
+                </div>
+                <div>
+                    <input type="email" id="UWEemail" placeholder="Please enter your UWE Email" name="UWEemail"
+                        value="{{ UWEemail }}" required>
+                </div>
+                <div>
+                    <label for="issue">Issue:</label>
+                </div>
+                <div>
+                    <select name="issue" id="issue">
+                        <option value="Reset Password">Reset Password</option>
+                        <option value="MFA not working">MFA not working</option>
+                        <option value="How to access marks">How to access my marks</option>
+                        <option value="How to connect to UWEs WiFi">How to connect to UWE'S WiFi</option>
+                        <option value="Not Specified">Not Specified</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="specissue">If you selected 'Not Specified' in the box above, please select the topic
+                        that
+                        your
+                        issue is most related to:</label>
+                </div>
+                <div>
+                    <select name="specissue" id="specissue">
+                        <option value="Passwords">Password Related</option>
+                        <option value="Blackboard">Blackboard</option>
+                        <option value="Finance">Issues relating to Finance</option>
+                        <option value="Timetable">Timetable Related</option>
+                        <option value="Personal Information">Personal Information</option>
+                        <option value="WiFi">WiFi</option>
+                        <option value="Attendance">Issues relating to Attendance</option>
+                        <option value="UWE Software">Issues relating to UWE Software</option>
+                        <option value="Not Specified">Not Specified</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="flex justify-center">Submit</button>
+                </div>
+            </form>
+        </div>
+        <div class="py-2 flex items-center justify-center">
+            <h3>{{ msg }}</h3>
+        </div>
+    </div>
+</body>
+
+
+
+</html>

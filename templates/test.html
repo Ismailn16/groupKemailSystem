@@ -5,49 +5,30 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='output.css')}}">
 </head>
 
-<body>
-    <form method="post" action="/process_form">
-        <div>
-            <label for="firstname">First Name:</label>
-            <input type="text" id="firstname" placeholder="Please enter your first name" name="firstname" required>
+<header>
+    <div class="bg-gray-500 py-5">
+        <div class="container mx-auto">
+            <a href="/home">
+                <h1 class="text-2xl font-bold mb-4 flex justify-center" href="/home">UWE ITS Help Services</h1>
+            </a>
+            <nav class="flex justify-center">
+                <a class="hover:text-red-700 px-4" href="/issue_form">Issue Form</a>
+                <a class="hover:text-red-700 px-4" href="{{ firstTagRoute }}">{{ firstTag }}</a>
+                <a class="hover:text-red-700 px-4" href='{{ secondTagRoute }}'>{{ secondTag }}</a>
+                <a class="hover:text-red-700 px-4" href='{{ thirdTagRoute }}'>{{ thirdTag }}</a>
+            </nav>
         </div>
-        <div>
-            <label for="lastname">Last Name:</label>
-            <input type="text" id="lastname" placeholder="Please enter your last name" name="lastname" required>
-        </div>
-        <div>
-            <label for="UWEemail">UWE Email:</label>
-            <input type="email" id="UWEemail" placeholder="Please enter your UWE Email" name="UWEemail" required>
-        </div>
-        <div>
-            <label for="issue">Issue:</label>
-            <select name="issue" id-="issue">
-                <option value="Reset Password">Reset Password</option>
-                <option value="MFA not working">MFA not working</option>
-                <option value="How to access marks">How to access my marks</option>
-                <option value="How to connect to UWEs WiFi">How to connect to UWE'S WiFi</option>
-                <option value="Not Specified">Not Specified</option>
-            </select>
-        </div>
-        <div>
-            <label for="specissue">If you selected 'Not Specified' in the box above, please select the topic that your
-                issue is most related to:</label>
-            <select name="specissue" id-="specissue">
-                <option value="Passwords">Password Related</option>
-                <option value="Blackboard">Blackboard</option>
-                <option value="Finance">Issues relating to Finance</option>
-                <option value="Timetable">Timetable Related</option>
-                <option value="Personal Information">Personal Information</option>
-                <option value="WiFi">WiFi</option>
-                <option value="Attendance">Issues relating to Attendance</option>
-                <option value="UWE Software">Issues relating to UWE Software</option>
-            </select>
+    </div>
+</header>
 
-        </div>
-        <button>Submit</button>
-    </form>
+
+<body>
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+        <h3>{{ msg }}</h3>
+    </div>
 </body>
 
 
