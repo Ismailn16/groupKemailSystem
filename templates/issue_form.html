@@ -6,29 +6,37 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{url_for('static',filename='output.css')}}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon_io/favicon.ico') }}" type="image/x-icon">
 </head>
 
-<header>
-    <div class="bg-gray-500 py-5">
-        <div class="container mx-auto">
-            <a href="/home">
-                <h1 class="text-2xl font-bold mb-4 flex justify-center" href="/home">UWE ITS Help Services</h1>
-            </a>
-            <nav class="flex justify-center">
-                <a class="hover:text-red-700 px-4" href="/issue_form">Issue Form</a>
-                <a class="hover:text-red-700 px-4" href="{{ firstTagRoute }}">{{ firstTag }}</a>
-                <a class="hover:text-red-700 px-4" href='{{ secondTagRoute }}'>{{ secondTag }}</a>
-                <a class="hover:text-red-700 px-4" href='{{ thirdTagRoute }}'>{{ thirdTag }}</a>
-            </nav>
+<header id="header">
+    <div class="bg-gray-500 flex justify-center items-center">
+        <div class="flex justify-start pb-6 pt-6 pl-64">
+            <img src="https://i.postimg.cc/02fR1nhY/Group-K-1.png" class="w-1/6 h-1/6">
+            <div class="container mx-auto items-center pt-8">
+                <a href="/home">
+                    <h1 class="text-2xl font-bold pl-4 mb-4 flex justify-start" href="/home">UWE
+                        ITS Help
+                        Services
+                    </h1>
+                </a>
+
+                <nav>
+                    <a class="hover:text-red-700 px-4" href="/issue_form">Issue Form</a>
+                    <a class="hover:text-red-700 px-4" href="{{ firstTagRoute }}">{{ firstTag }}</a>
+                    <a class="hover:text-red-700 px-4" href='{{ secondTagRoute }}'>{{ secondTag }}</a>
+                    <a class="hover:text-red-700 px-4" href='{{ thirdTagRoute }}'>{{ thirdTag }}</a>
+                </nav>
+            </div>
         </div>
     </div>
 </header>
 
-<body class="bg-gray-100">
-    <div class="py-2">
-        <p class="flex justify-center text-lg">Get some help for your issue!</p>
+<body class="min-h-screen bg-gray-100">
+    <div class="pt-4">
+        <p class="flex justify-center">Get some help for your issue!</p>
     </div>
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-4">
         <div class="flex justify-center">
             <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8" action="/process_form">
                 <div>
@@ -101,6 +109,16 @@
     </div>
 </body>
 
+<footer class="bg-gray-500">
+    <div class="flex justify-center items-center py-4">
+        <a class="px-2" href="mailto:uweitstestemail@gmail.com">
+            <h1>Contact us!</h1>
+        </a>
+        <a class="px-2" href="#header">
+            <h1>Back to top</h1>
+        </a>
+    </div>
+</footer>
 
 
 </html>

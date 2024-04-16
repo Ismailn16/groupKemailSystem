@@ -17,7 +17,7 @@ app.config['MYSQL_PASSWORD'] = os.environ.get('emailpageMySQL')
 app.config['MYSQL_DB'] = 'emailpage'
 
 mysql = MySQL(app)
-app.secret_key = 'SecretKey'
+app.secret_key = os.environ.get('groupKsecret')
 sg_api = os.environ.get('SENDGRID_API_KEY')
 sg = SendGridAPIClient(sg_api)
 
@@ -46,7 +46,6 @@ def home():
 def issue_form():
     if 'loggedin' in session:
         username = session.get('username')
-        UWEemail = session.get('UWE_email')
         firstTag = 'Dashboard'
         firstTagRoute = '/dashboard'
         secondTag = 'Log Out'
@@ -54,16 +53,11 @@ def issue_form():
         thirdTag = 'Profile'
         thirdTagRoute = '/profile'
         msg = session.pop('msg', None)
-        if UWEemail is None:
-            if msg is None:
-                return render_template('issue_form.html', username=username, firstTag=firstTag, firstTagRoute=firstTagRoute, secondTag=secondTag, secondTagRoute=secondTagRoute, thirdTag=thirdTag, thirdTagRoute=thirdTagRoute)
-            else:
-                return render_template('issue_form.html', username=username, firstTag=firstTag, firstTagRoute=firstTagRoute, secondTag=secondTag, secondTagRoute=secondTagRoute, thirdTag=thirdTag, thirdTagRoute=thirdTagRoute, msg=msg)
+        if msg is None:
+            return render_template('issue_form.html', username=username, firstTag=firstTag, firstTagRoute=firstTagRoute, secondTag=secondTag, secondTagRoute=secondTagRoute, thirdTag=thirdTag, thirdTagRoute=thirdTagRoute)
         else:
-            if msg is None:
-                return render_template('issue_form.html', username=username, firstTag=firstTag, firstTagRoute=firstTagRoute, secondTag=secondTag, secondTagRoute=secondTagRoute, thirdTag=thirdTag, thirdTagRoute=thirdTagRoute, UWEemail=UWEemail)
-            else:
-                return render_template('issue_form.html', username=username, firstTag=firstTag, firstTagRoute=firstTagRoute, secondTag=secondTag, secondTagRoute=secondTagRoute, thirdTag=thirdTag, thirdTagRoute=thirdTagRoute, msg=msg, UWEemail=UWEemail)
+            return render_template('issue_form.html', username=username, firstTag=firstTag, firstTagRoute=firstTagRoute, secondTag=secondTag, secondTagRoute=secondTagRoute, thirdTag=thirdTag, thirdTagRoute=thirdTagRoute, msg=msg)
+
 
 
     else:
@@ -164,8 +158,13 @@ def fetch_email_data(userID, username):
 def logout():
     # Remove session data, this will log the user out
    session.pop('loggedin', None)
-   session.pop('id', None)
+   session.pop('user_id', None)
    session.pop('username', None)
+   session.pop('password', None)
+   session.pop('first_name', None)
+   session.pop('last_name', None)
+   session.pop('UWEemail', None)
+
    # Redirect to login page
    msg = 'You are now logged out'
    return render_template('login_page.html', msg=msg)
@@ -176,14 +175,10 @@ def dashboard():
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute('SELECT emailRequestDescription, emailRequestDT, emailRequestStatus FROM emailrequests WHERE userID = %s', (userID,))
         emaildata = cursor.fetchall()
-        print(emaildata)
 
         # Convert emaildata to a JSON serializable format
         emailArray = [dict(row) for row in emaildata]
 
-        # Save emailArray in session
-        session['emailArray'] = emailArray
-        emailArray = session.get('emailArray')
         username = session.get('username')
 
         if emailArray == []:
@@ -193,8 +188,6 @@ def dashboard():
             erd = 'Email Request Description'
             erdt = 'Email Request Date and Time'
             ers = 'Email Request Status'
-            print(emailArray)
-            print(session)
             return render_template('main_dashboard.html', emailArray=emailArray, username=username, erd=erd, erdt=erdt, ers=ers)
 
 
@@ -316,9 +309,6 @@ def first_verify():
     fName = session.get('first_name')
     first_entry = request.form['first_entry']
     last_entry = request.form['last_entry']
-    print(fName)
-    print(first_entry)
-    print(last_entry)
     if fName == first_entry or fName == last_entry:
         session['message'] = 'Please type in a new First Name'
         return redirect(url_for('change_first'))
@@ -389,17 +379,21 @@ def uwe_verify():
     UWEemail = session.get('UWE_email')
     first_entry = request.form['first_entry']
     last_entry = request.form['last_entry']
-    if UWEemail == first_entry or UWEemail == last_entry:
-        session['message'] = 'Please type in a new UWE email'
-        return redirect(url_for('change_uwe'))
-    elif first_entry == last_entry:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('UPDATE users SET UWE_email = %s WHERE userID = %s', (first_entry, userID,))
-        mysql.connection.commit()
-        session['message'] = 'Your information has been updated!'
-        return redirect(url_for('change_uwe'))
+    if '@live.uwe.ac.uk' in first_entry and last_entry:
+        if UWEemail == first_entry or UWEemail == last_entry:
+            session['message'] = 'Please type in a new UWE email'
+            return redirect(url_for('change_uwe'))
+        elif first_entry == last_entry:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('UPDATE users SET UWE_email = %s WHERE userID = %s', (first_entry, userID,))
+            mysql.connection.commit()
+            session['message'] = 'Your information has been updated!'
+            return redirect(url_for('change_uwe'))
+        else:
+            session['message'] = 'Your entries no not match. Please re-enter the fields above.'
+            return redirect(url_for('change_uwe'))
     else:
-        session['message'] = 'Your entries no not match. Please re-enter the fields above.'
+        session['message'] = 'Please type in a UWE email'
         return redirect(url_for('change_uwe'))
     
 
