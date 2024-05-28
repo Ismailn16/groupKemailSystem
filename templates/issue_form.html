@@ -36,7 +36,7 @@
     <div class="pt-4">
         <p class="flex justify-center">Get some help for your issue!</p>
     </div>
-    <div class="container mx-auto px-4 py-4">
+    <div class="mx-auto px-4 py-4">
         <div class="flex justify-center">
             <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8" action="/process_form">
                 <div>
@@ -76,6 +76,8 @@
                         <option value="MFA not working">MFA not working</option>
                         <option value="How to access marks">How to access my marks</option>
                         <option value="How to connect to UWEs WiFi">How to connect to UWE'S WiFi</option>
+                        <option value="How to order a new ID card">How to order a new ID card</option>
+                        <option value="How to print things off">How to print things off</option>
                         <option value="Not Specified">Not Specified</option>
                     </select>
                 </div>
@@ -92,11 +94,17 @@
                         <option value="Finance">Issues relating to Finance</option>
                         <option value="Timetable">Timetable Related</option>
                         <option value="Personal Information">Personal Information</option>
-                        <option value="WiFi">WiFi</option>
                         <option value="Attendance">Issues relating to Attendance</option>
                         <option value="UWE Software">Issues relating to UWE Software</option>
                         <option value="Not Specified">Not Specified</option>
                     </select>
+                </div>
+                <div>
+                    <label class="flex items-center" for="wordMatch">If you could use 5 key words to describe your
+                        issue, please enter them below, each word starting with a capital letter:</label>
+                </div>
+                <div>
+                    <input type="textarea" id="wordMatch" name="wordMatch">
                 </div>
                 <div>
                     <button class="flex justify-center">Submit</button>

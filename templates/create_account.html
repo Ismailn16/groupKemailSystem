@@ -9,7 +9,26 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon_io/favicon.ico') }}" type="image/x-icon">
 </head>
 
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            e.preventDefault(); // Prevent default form submission
+            var form_data = $(this).serialize(); // Serialize form data
+            $.ajax({
+                type: 'POST',
+                url: '/create_account',
+                data: form_data,
+                success: function (response) {
+                    $('#msg').text(response.msg); // Display response message
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText); // Log error message to console
+                }
+            });
+        });
+    });
+</script>
 
 
 
@@ -64,7 +83,7 @@
             </form>
         </div>
         <div class="pb-9">
-            <h3 class="flex items-center justify-center">{{ msg }}</h3>
+            <h3 id="msg" class="flex items-center justify-center"></h3>
         </div>
     </div>
 </body>

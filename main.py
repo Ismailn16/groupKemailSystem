@@ -9,6 +9,7 @@ import mysql.connector
 import datetime
 from datetime import datetime
 import time
+from flask import jsonify
 
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = '127.0.0.1'
@@ -105,8 +106,7 @@ def create_account():
         mysql.connection.commit()
         msg = 'You have successfully registered!'
 
-    
-    return render_template('create_account.html', msg=msg)
+    return jsonify({'msg': msg}) # Return message as JSON
 
 
 @app.route('/authenticate_user', methods=['POST', 'GET'])
@@ -446,6 +446,7 @@ def process_form():
         user_issue = request.form['issue']
         user_spec_issue = request.form['specissue']
         username = request.form['username']
+        wordMatch = request.form['wordMatch']
         if username != "":
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute('SELECT * FROM users WHERE login_username = %s', (username,))
@@ -477,15 +478,31 @@ def process_form():
                     add_email_record(user_issue, userID, emailStatus)
                     session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox. A record of this request has been saved on your account'
                     return redirect(url_for('issue_form'))
-                elif (user_issue == 'Not Specified') and (user_spec_issue != "Not Specified"):
-                    spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
-                    emailStatus = 'Broad solution suggestions sent'
+                elif user_issue == 'How to order a new ID card':
+                    id_card(user_email, user_firstname, user_lastname, user_issue)
+                    emailStatus = 'Solution sent'
+                    add_email_record(user_issue, userID, emailStatus)
+                    session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox. A record of this request has been saved on your account'
+                    return redirect(url_for('issue_form'))
+                elif user_issue == 'How to print things off':
+                    printing_help(user_email, user_firstname, user_lastname, user_issue)
+                    emailStatus = 'Solution sent'
+                    add_email_record(user_issue, userID, emailStatus)
+                    session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox. A record of this request has been saved on your account'
+                    return redirect(url_for('issue_form'))
+                elif (user_issue == 'Not Specified') and (user_spec_issue != "Not Specified") and (wordMatch != ""):
+                    spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
+                    emailStatus = 'Solution suggestions sent'
                     add_email_record(user_issue, userID, emailStatus)
                     session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox'
                     return redirect(url_for('issue_form'))
-                elif (user_issue == 'Not Specified') and (user_spec_issue == 'Not Specified'):
-                    session['msg'] = 'As you have not selected either option, we cannot assist you. Please contact ITS via their help desk or by phone.'
+                elif (user_issue == 'Not Specified') and (user_spec_issue != "Not Specified") and (wordMatch == ""):
+                    session['msg'] = 'Due to the lack of information given, we cannot send you a solution directly. Feel free to explore our other page or contact ITS via their help desk or by phone.'
                     return redirect(url_for('issue_form'))
+                else:
+                    session['msg'] = "You have not selected a option in second option box. Please select 'Not Specified' in the first box and pick a related issue from the box below."
+                    return redirect(url_for('issue_form'))
+
             else: 
                 session['msg'] = 'The username you have entered is not on our system. Please fill out the form again with a valid username'
                 return redirect(url_for('issue_form'))
@@ -506,15 +523,23 @@ def process_form():
                 wifi_email(user_email, user_firstname, user_lastname, user_issue)
                 session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox'
                 return redirect(url_for('issue_form'))
-            elif (user_issue == 'Not Specified') and (user_spec_issue != "Not Specified"):
-                spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+            elif user_issue == 'How to order a new ID card':
+                id_card(user_email, user_firstname, user_lastname, user_issue)
                 session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox'
                 return redirect(url_for('issue_form'))
-            elif (user_issue == 'Not Specified') and (user_spec_issue == 'Not Specified'):
-                session['msg'] = 'As you have not selected either option, we cannot assist you. Please contact ITS via their help desk or by phone.'
+            elif user_issue == 'How to print things off':
+                printing_help(user_email, user_firstname, user_lastname, user_issue)
+                session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox'
+                return redirect(url_for('issue_form'))
+            elif (user_issue == 'Not Specified') and (user_spec_issue != "Not Specified") and (wordMatch != ""):
+                spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
+                session['msg'] = 'The email has been sent. Please check your junk if it has not appeared in your inbox'
+                return redirect(url_for('issue_form'))
+            elif (user_issue == 'Not Specified') and (user_spec_issue != "Not Specified") and (wordMatch == ""):
+                session['msg'] = 'Due to the lack of information given, we cannot send you a solution directly. Feel free to explore our other page orcontact ITS via their help desk or by phone.'
                 return redirect(url_for('issue_form'))
             else:
-                session['msg'] = "You have not selected a option in second option box. Please select 'Not Specified'in the first box and pick a related issue from the box below."
+                session['msg'] = "You have not selected a option in second option box. Please select 'Not Specified' in the first box and pick a related issue from the box below."
                 return redirect(url_for('issue_form'))
     else:
         session['msg'] = 'The email entered is not a UWE email. Please re-enter the correct credentials.'
@@ -525,19 +550,27 @@ def process_form():
 
 
 def resetpassword_email(user_email, user_firstname, user_lastname, user_issue):
-    template_id = 'd-ffa70cf693e74289894e9305175a58f1'
+    template_id = 'd-4930ad3e308640758e9cdb2ad98e9213'
     send_email(user_firstname, user_lastname, user_issue, user_email, template_id)
 
 def mfa_email(user_email, user_firstname, user_lastname, user_issue):
-    template_id = 'd-7ddb1ea78ad54e29b1836974946f2d1f'
+    template_id = 'd-abb4f313296042669342b604f85472b1'
     send_email(user_firstname, user_lastname, user_issue, user_email, template_id)
 
 def marks_email(user_email, user_firstname, user_lastname, user_issue):
-    template_id = 'd-57fd53429b1a4dc184e4847bd57f1ba5'
+    template_id = 'd-7d38a881b35940fd8dde35f66a9a7cab'
     send_email(user_firstname, user_lastname, user_issue, user_email, template_id)
 
 def wifi_email(user_email, user_firstname, user_lastname, user_issue):
-    template_id = 'd-a197450e4ab6457da1e02305eff33e7c'
+    template_id = 'd-18d79409b8ca4ec9b087836244110ae6'
+    send_email(user_firstname, user_lastname, user_issue, user_email, template_id)
+
+def id_card(user_email, user_firstname, user_lastname, user_issue):
+    template_id = 'd-d98ac1d8ddbe4de0ba6fc343a0765ce0'
+    send_email(user_firstname, user_lastname, user_issue, user_email, template_id)
+
+def printing_help(user_email, user_firstname, user_lastname, user_issue):
+    template_id = 'd-e529669747f14af7bc55894a234d705f'
     send_email(user_firstname, user_lastname, user_issue, user_email, template_id)
 
 
@@ -546,56 +579,127 @@ def wifi_email(user_email, user_firstname, user_lastname, user_issue):
 
 
 
-def spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
+def spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
     if (user_spec_issue == 'Passwords'):
-        passwords_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+        passwords_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
     elif (user_spec_issue == 'Blackboard'):
-        blackboard_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+        blackboard_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
     elif (user_spec_issue == 'Finance'):
-        finance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+        finance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
     elif (user_spec_issue == 'Timetable'):
-        timetable_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+        timetable_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
     elif (user_spec_issue == 'Personal Information'):
-        personal_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
-    elif (user_spec_issue == 'WiFi'):
-        wifi_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+        personal_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
     elif (user_spec_issue == 'Attendance'):
-        attendance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+        attendance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
     elif (user_spec_issue == 'UWE Software'):
-        software_spec_email(user_email, user_firstname, user_lastname, user_spec_issue)
+        software_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
+    else:
+        misc_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch)
 
-def passwords_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+def passwords_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if "Change" or "Edit" in wordMatch:
+        template_id = 'd-2f71b112084f4f819842d7919f2c50f2'  
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-848f54277dfb4b779b5087ccd621e5aa'  
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
 
-def blackboard_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
-
-def finance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
-
-def timetable_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
-
-def personal_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
-
-def wifi_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
-
-def attendance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
-
-def software_spec_email(user_email, user_firstname, user_lastname, user_spec_issue):
-    template_id = 'euibhckdalihc;kns-9'
-    send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+def blackboard_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if ("Access" or "Find") and ("Module" or "Modules") in wordMatch:
+        template_id = 'd-633d008aae2f4f709b5e3c9ae0d5a2bf'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Access" or "Find") and ("Lecture" or "Lectures") in wordMatch:
+        template_id = 'd-cc215040640346f2a716ffa4ba032225'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Access" or "Find") and ("Assignment" or "Assessment" or "Assignments" or "Assessments") in wordMatch:
+        template_id = 'd-09ae903139094dc7b3debe41fbd0f040'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-41344086a1ca492f9e17585c955895e4'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
 
 
+def finance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if ("Review" or "Check") and ("Payment" or "Fees") in wordMatch:
+        template_id = 'd-467b069f8f1a46ab9616136bb7b16e3f'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif "Loan" in wordMatch:
+        template_id = 'd-8929c127e45249c8b6b29cf0244444dc'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-689fb1acb3b74b13a4a9968f450e3559'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+
+
+def timetable_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if ("See" or "View") and "Timetable" in wordMatch:
+        template_id = 'd-d1a0f86069f44c72a38e33fb0a07c5d4'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Add" and "Timetable") in wordMatch:
+        template_id = 'd-480d24466c3d4af18f6f1854dc5933ac'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-dda3e801fe754ad9ab7fdf0ba8f54625'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+
+def personal_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if ("Edit" or "Change") and ("Email" or "E-mail") in wordMatch:
+        template_id = 'd-58a2862b6d7b4ce38a212bf869a198aa'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Edit" or "Change") and ("Phone" or "Number" or "Phone Number") in wordMatch:
+        template_id = 'd-58a2862b6d7b4ce38a212bf869a198aa'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Edit" or "Change" or "Add") and "Address" in wordMatch:
+        template_id = 'd-af9843461625406ab58cf990da13c812'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-ea3fa9aa103f4c89ad983737b81e57c5'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+
+
+def attendance_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if ("View" or "See") and "Attendance" in wordMatch:
+        template_id = 'd-84647951eb394ee1bbb44e2a53f853d4'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Record" or "Mark") and "Attendance" in wordMatch:
+        template_id = 'd-e04bd42fcde241839bb3967cbe4f3381'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("View" and "See") and "Engagement" in wordMatch:
+        template_id = 'd-1a72edafd79b43feb99fb11657cc532b'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-3f74090f29e3407eaa596e4b977daf9f'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+
+def software_spec_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if "Access" and "AppsAnywhere" in wordMatch:
+        template_id = 'd-71cf700b1be946d7baf2888894685a64'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif "Microsoft Office" or "Office 365" in wordMatch:
+        template_id = 'd-8113ee70eb544995b59d0b70ea108a2e'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-d6edc185f5eb4b42b308dc5e26549788'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+
+def misc_email(user_email, user_firstname, user_lastname, user_spec_issue, wordMatch):
+    if ("Find" or "Access") and ("Library" and "Search") in wordMatch:
+        template_id = 'd-213cd1b41c6a432384bf7f398c4d9f2c'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Create" or "Schedule") and "Teams" in wordMatch:
+        template_id = 'd-98f7c65438e44defa169dcaedde239dd '
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif "Borrow" and "Library" in wordMatch:
+        template_id = 'd-02e7a98988784ce5999634bcab366e90'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    elif ("Book" or "Find" or "Register") and ("Events" or "Fairs" or "Event") in wordMatch:
+        template_id = 'd-69c1446b279b48e0ae9a62957447a253'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+    else:
+        template_id = 'd-52df8406b0704c84ae755068de1466e0'
+        send_spec_email(user_firstname, user_lastname, user_spec_issue, user_email, template_id)
+
+        
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
